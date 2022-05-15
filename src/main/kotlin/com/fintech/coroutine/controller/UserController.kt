@@ -5,22 +5,28 @@ import com.fintech.coroutine.dto.UserDto
 import com.fintech.coroutine.dto.toEntity
 import com.fintech.coroutine.entity.toDto
 import com.fintech.coroutine.service.UserService
+import kotlinx.coroutines.*
 
 @RestController
 @RequestMapping("/users")
 class UserController(private val userService: UserService) {
 
-
     @PostMapping
-    suspend fun addUser(@RequestBody userDto: UserDto): UserDto {
+    fun addUserAsync(@RequestBody userDto: UserDto): String {
 
-        return userService.addUser(userDto.toEntity()).toDto()
+        CoroutineScope(Dispatchers.Default).launch { userService.addUser(userDto.toEntity()) }
+
+        return "In Process"
     }
 
-    @GetMapping("/{userId}")
-    suspend fun getUser(@PathVariable userId: Long): UserDto {
+    @GetMapping("/{username}")
+    suspend fun getUser(@PathVariable username: String): UserDto {
 
-        return userService.getUser(userId).toDto()
+        val user = CoroutineScope(Dispatchers.Default).async {
+            userService.getUserByUsername(username)?.toDto()
+        }
+
+        return user.await() ?: throw IllegalArgumentException("No such user with username = $username")
     }
 }
 

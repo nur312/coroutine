@@ -92,7 +92,7 @@ class CoroutineApplicationTests(
 
         val expected = User(userDto!!.id, "Ronaldo", "cr7", "cr7@cr7.sp", randomQuoteClient.getQuote())
 
-        val savedEntity = userService!!.getUser(userDto!!.id)
+        val savedEntity = userService!!.getUserByUsername(userDto!!.username)!!
         assertAll(
             { assertEquals(expected.name, savedEntity.name) },
             { assertEquals(expected.username, savedEntity.username) },
@@ -108,7 +108,7 @@ class CoroutineApplicationTests(
 
         val messi = UserDto("Messi", "mes", "mes@mes.sp")
 
-        val responseBody: UserDto = webTestClient
+        val responseBody: String = webTestClient
             .post()
             .uri("/users")
             .contentType(MediaType.APPLICATION_JSON)
@@ -116,29 +116,32 @@ class CoroutineApplicationTests(
             .body(BodyInserters.fromValue(messi))
             .exchange()
             .expectStatus().isOk
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectBody(UserDto::class.java)
+            .expectBody(String::class.java)
             .returnResult()
             .responseBody!!
 
-        assertAll(
-            { assertEquals(messi.name, responseBody.name) },
-            { assertEquals(messi.username, responseBody.username) },
-            { assertEquals(messi.email, responseBody.email) },
-            { assertNotEquals(0, responseBody.id) },
-            { assertFalse(responseBody.quote.isNullOrEmpty()) }
-        )
+//        assertAll(
+//            { assertEquals(messi.name, responseBody.name) },
+//            { assertEquals(messi.username, responseBody.username) },
+//            { assertEquals(messi.email, responseBody.email) },
+//            { assertNotEquals(0, responseBody.id) },
+//            { assertFalse(responseBody.quote.isNullOrEmpty()) }
+//        )
 
-        userDto = responseBody
+        assertEquals("In Process", responseBody)
+
+        userDto = messi
     }
 
     @Test
     @Order(6)
     fun getUserController() {
 
+        Thread.sleep(1000)
+
         val responseBody: UserDto = webTestClient
             .get()
-            .uri("/users/${userDto!!.id}")
+            .uri("/users/${userDto!!.username}")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk

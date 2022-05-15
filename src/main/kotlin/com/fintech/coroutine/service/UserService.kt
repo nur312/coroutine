@@ -14,7 +14,7 @@ class UserService(
 ) {
 
     suspend fun addUser(user: User): User {
-
+        // delay(10000)
         user.quote = withContext(Dispatchers.Default) {
 
             return@withContext quoteClient.getQuote()
@@ -25,9 +25,8 @@ class UserService(
         }
     }
 
-    suspend fun getUser(id: Long): User = withContext(Dispatchers.IO) {
+    suspend fun getUserByUsername(username: String): User? = withContext(Dispatchers.IO) {
 
-        return@withContext repo.findById(id)
+        return@withContext repo.findByUsername(username)
     }
-        ?: throw  IllegalArgumentException("There is not user id = $id")
 }
