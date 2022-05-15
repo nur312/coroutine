@@ -25,8 +25,9 @@ class UserService(
         }
     }
 
-    suspend fun getUserByUsername(username: String): User? = withContext(Dispatchers.IO) {
+    suspend fun getUserByUsername(username: String): User = withContext(Dispatchers.IO) {
 
         return@withContext repo.findByUsername(username)
+            ?: throw IllegalArgumentException("No such user with username = $username")
     }
 }

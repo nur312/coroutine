@@ -23,10 +23,10 @@ class UserController(private val userService: UserService) {
     suspend fun getUser(@PathVariable username: String): UserDto {
 
         val user = CoroutineScope(Dispatchers.Default).async {
-            userService.getUserByUsername(username)?.toDto()
+            userService.getUserByUsername(username).toDto()
         }
 
-        return user.await() ?: throw IllegalArgumentException("No such user with username = $username")
+        return user.await()
     }
 }
 
